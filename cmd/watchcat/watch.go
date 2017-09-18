@@ -17,6 +17,14 @@ func Watch(c *cli.Context) {
 		switch notifier {
 		case "std":
 			watcher.AddNotifier(&watchcat.StdNotifier{})
+		case "slack":
+			webhookURL := c.GlobalString("slack_webhook_url")
+			if webhookURL == "" {
+				panic(fmt.Errorf("not specified `slack_webhook_url` flag"))
+			}
+			watcher.AddNotifier(&watchcat.SlackNotifier{
+				WebhookURL: webhookURL,
+			})
 		default:
 			panic(fmt.Errorf("invalid notifier: %s", notifier))
 		}

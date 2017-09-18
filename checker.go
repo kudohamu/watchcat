@@ -33,6 +33,7 @@ func (rc *ReleaseChecker) Run() error {
 		return err
 	}
 
+	prev := repo.Current
 	if repo.Current == "" || version.CompareSimple(repo.Current, info.GetTagName()) < 0 {
 		repo.Current = info.GetTagName()
 		if err := repo.Write(); err != nil {
@@ -41,11 +42,14 @@ func (rc *ReleaseChecker) Run() error {
 		}
 
 		ni := &NotificationInfo{
-			Owner:    repo.Owner,
-			RepoName: repo.RepoName,
-			Current:  repo.Current,
-			Link:     info.GetHTMLURL(),
-			Target:   repo.Target[:len(repo.Target)-1],
+			Owner:     repo.Owner,
+			AvatarURL: info.Author.GetAvatarURL(),
+			RepoName:  repo.RepoName,
+			Current:   repo.Current,
+			Prev:      prev,
+			Link:      info.GetHTMLURL(),
+			Body:      info.GetBody(),
+			Target:    repo.Target[:len(repo.Target)-1],
 		}
 		rc.notifiers.Notify(ni)
 	}

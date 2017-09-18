@@ -17,7 +17,11 @@ func main() {
 		},
 		cli.StringFlag{
 			Name:  "notifiers",
-			Usage: "notification parties (std)",
+			Usage: "notification parties (std, slack)",
+		},
+		cli.StringFlag{
+			Name:  "slack_webhook_url",
+			Usage: "webhook url for notifying to slack",
 		},
 	}
 	app.Commands = []cli.Command{
