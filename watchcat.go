@@ -25,6 +25,7 @@ type Watcher struct {
 	ticker     *time.Ticker
 	notifiers  notifiers
 	worker     *petelgeuse.Manager
+	interval   string
 }
 
 // Config represents cofiguration of watching targets.
@@ -40,7 +41,7 @@ type RepoConfig struct {
 }
 
 // New creates new watchcat instance.
-func New(confingPath string) *Watcher {
+func New(confingPath string, interval string) *Watcher {
 	worker := petelgeuse.New(&petelgeuse.Option{
 		WorkerSize: 10,
 		QueueSize:  1000,
@@ -50,6 +51,7 @@ func New(confingPath string) *Watcher {
 		configPath: confingPath,
 		worker:     worker,
 		notifiers:  notifiers{},
+		interval:   interval,
 	}
 }
 
@@ -71,7 +73,11 @@ func (w *Watcher) Watch() error {
 
 	w.check(config.Repos)
 
-	w.ticker = time.NewTicker(10 * time.Second)
+	interval, err := time.ParseDuration(w.interval)
+	if err != nil {
+		return fmt.Errorf("invalid interval: %s", w.interval)
+	}
+	w.ticker = time.NewTicker(interval)
 	defer w.ticker.Stop()
 
 	stopC := make(chan os.Signal, 1)

@@ -23,6 +23,10 @@ func main() {
 			Name:  "slack_webhook_url",
 			Usage: "webhook url for notifying to slack",
 		},
+		cli.StringFlag{
+			Name:  "interval, i",
+			Usage: "interval to check github (default: 30m)",
+		},
 	}
 	app.Commands = []cli.Command{
 		cli.Command{
