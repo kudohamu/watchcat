@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/kudohamu/petelgeuse"
+	"github.com/kudohamu/watchcat/internal/github"
 	"github.com/kudohamu/watchcat/internal/lmdb"
 )
 
@@ -23,11 +24,12 @@ const (
 
 // Watcher represents watcher for github some activities.
 type Watcher struct {
-	configPath string
-	ticker     *time.Ticker
-	notifiers  notifiers
-	worker     *petelgeuse.Manager
-	interval   string
+	configPath  string
+	ticker      *time.Ticker
+	notifiers   notifiers
+	worker      *petelgeuse.Manager
+	interval    string
+	accessToken string
 }
 
 // Config represents cofiguration of watching targets.
@@ -43,17 +45,18 @@ type RepoConfig struct {
 }
 
 // New creates new watchcat instance.
-func New(confingPath string, interval string) *Watcher {
+func New(confingPath string, interval string, accessToken string) *Watcher {
 	worker := petelgeuse.New(&petelgeuse.Option{
 		WorkerSize: 10,
 		QueueSize:  1000,
 	})
 
 	return &Watcher{
-		configPath: confingPath,
-		worker:     worker,
-		notifiers:  notifiers{},
-		interval:   interval,
+		configPath:  confingPath,
+		worker:      worker,
+		notifiers:   notifiers{},
+		interval:    interval,
+		accessToken: accessToken,
 	}
 }
 
@@ -63,7 +66,16 @@ func (w *Watcher) Watch() error {
 	if err := lmdb.Connect(); err != nil {
 		return err
 	}
+	if w.accessToken == "" {
+		github.Connect(nil)
+	} else {
+		github.Connect(&github.ConnectOption{
+			AccessToken: w.accessToken,
+		})
+	}
+
 	defer func() {
+		github.Disconnect()
 		lmdb.Disconnect()
 		w.worker.StopImmediately()
 	}()

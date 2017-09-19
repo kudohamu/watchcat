@@ -11,13 +11,14 @@ import (
 // Watch parses flags and starts to watch repositories.
 func Watch(c *cli.Context) {
 	conf := c.GlobalString("conf")
+	accessToken := c.GlobalString("token")
 	interval := c.GlobalString("interval")
 
 	if interval == "" {
 		interval = "30m"
 	}
 
-	watcher := watchcat.New(conf, interval)
+	watcher := watchcat.New(conf, interval, accessToken)
 
 	for _, notifier := range strings.Split(c.GlobalString("notifiers"), ",") {
 		switch notifier {

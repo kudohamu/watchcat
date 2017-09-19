@@ -27,6 +27,10 @@ func main() {
 			Name:  "interval, i",
 			Usage: "interval to check github (default: 30m)",
 		},
+		cli.StringFlag{
+			Name:  "token, t",
+			Usage: "github access token",
+		},
 	}
 	app.Commands = []cli.Command{
 		cli.Command{
