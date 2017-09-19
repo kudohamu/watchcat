@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/google/go-github/github"
+	"github.com/kudohamu/watchcat/internal/lmdb"
 	version "github.com/mcuadros/go-version"
 )
 
@@ -15,10 +16,10 @@ type ReleaseChecker struct {
 
 // Run checks latest release.
 func (rc *ReleaseChecker) Run() error {
-	repo := &Repo{
-		Owner:    rc.repo.Owner,
-		RepoName: rc.repo.Name,
-		Target:   TargetReleases,
+	repo := &lmdb.Repo{
+		Owner:  rc.repo.Owner,
+		Name:   rc.repo.Name,
+		Target: TargetReleases,
 	}
 	if err := repo.Read(); err != nil {
 		rc.notifiers.Error(err)
@@ -27,7 +28,7 @@ func (rc *ReleaseChecker) Run() error {
 
 	// fetch latest release.
 	client := github.NewClient(nil)
-	info, _, err := client.Repositories.GetLatestRelease(context.Background(), repo.Owner, repo.RepoName)
+	info, _, err := client.Repositories.GetLatestRelease(context.Background(), repo.Owner, repo.Name)
 	if err != nil {
 		rc.notifiers.Error(err)
 		return err
@@ -44,7 +45,7 @@ func (rc *ReleaseChecker) Run() error {
 		ni := &NotificationInfo{
 			Owner:     repo.Owner,
 			AvatarURL: info.Author.GetAvatarURL(),
-			RepoName:  repo.RepoName,
+			RepoName:  repo.Name,
 			Current:   repo.Current,
 			Prev:      prev,
 			Link:      info.GetHTMLURL(),

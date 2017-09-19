@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/kudohamu/petelgeuse"
+	"github.com/kudohamu/watchcat/internal/lmdb"
 )
 
 // watching targets.
@@ -58,11 +59,11 @@ func New(confingPath string, interval string) *Watcher {
 // Watch starts to watch repositories.
 func (w *Watcher) Watch() error {
 	w.worker.Start()
-	if err := connect(); err != nil {
+	if err := lmdb.Connect(); err != nil {
 		return err
 	}
 	defer func() {
-		disconnect()
+		lmdb.Disconnect()
 		w.worker.StopImmediately()
 	}()
 
