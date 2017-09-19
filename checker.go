@@ -34,7 +34,10 @@ func (rc *ReleaseChecker) Run() error {
 
 	// fetch latest release.
 	client := github.NewClient(nil)
-	info, _, err := client.Repositories.GetLatestRelease(context.Background(), repo.Owner, repo.Name)
+	info, res, err := client.Repositories.GetLatestRelease(context.Background(), repo.Owner, repo.Name)
+	if res.StatusCode == 404 {
+		return nil
+	}
 	if err != nil {
 		rc.notifiers.Error(err)
 		return err
