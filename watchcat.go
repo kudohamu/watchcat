@@ -18,6 +18,7 @@ import (
 // watching targets.
 const (
 	TargetReleases = "releases"
+	TargetCommits  = "commits"
 )
 
 // Watcher represents watcher for github some activities.
@@ -104,6 +105,11 @@ func (w *Watcher) check(repos []*RepoConfig) {
 			switch target {
 			case TargetReleases:
 				w.worker.Add(&ReleaseChecker{
+					repo:      repo,
+					notifiers: w.notifiers,
+				})
+			case TargetCommits:
+				w.worker.Add(&CommitChecker{
 					repo:      repo,
 					notifiers: w.notifiers,
 				})
