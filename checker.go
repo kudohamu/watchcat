@@ -54,7 +54,7 @@ func (rc *ReleaseChecker) Run() error {
 
 	ni := &NotificationInfo{
 		Owner:     repo.Owner,
-		AvatarURL: release.Author.GetAvatarURL(),
+		AvatarURL: rc.repo.avatarURL,
 		RepoName:  repo.Name,
 		Current:   repo.Current,
 		Prev:      prev,
@@ -100,7 +100,7 @@ func (c *CommitChecker) Run() error {
 
 	ni := &NotificationInfo{
 		Owner:     repo.Owner,
-		AvatarURL: commit.Author.GetAvatarURL(),
+		AvatarURL: c.repo.avatarURL,
 		RepoName:  repo.Name,
 		Current:   repo.Current,
 		Prev:      prev,

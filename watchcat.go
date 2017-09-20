@@ -2,6 +2,7 @@
 package watchcat
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -39,9 +40,10 @@ type Config struct {
 
 // RepoConfig represents target repository to watch.
 type RepoConfig struct {
-	Owner   string   `json:"owner"`
-	Name    string   `json:"name"`
-	Targets []string `json:"targets"`
+	Owner     string   `json:"owner"`
+	Name      string   `json:"name"`
+	Targets   []string `json:"targets"`
+	avatarURL string
 }
 
 // New creates new watchcat instance.
@@ -113,6 +115,11 @@ func (w *Watcher) AddNotifier(n Notifier) {
 
 func (w *Watcher) check(repos []*RepoConfig) {
 	for _, repo := range repos {
+		avatarURL, err := fetchAvatarURL(repo.Owner)
+		if err == nil {
+			repo.avatarURL = avatarURL
+		}
+
 		for _, target := range repo.Targets {
 			switch target {
 			case TargetReleases:
@@ -156,4 +163,27 @@ func readConfigFromURL(url string) (*Config, error) {
 		return nil, err
 	}
 	return &config, nil
+}
+
+func fetchAvatarURL(ownerName string) (string, error) {
+	cache := &lmdb.Owner{
+		Name: ownerName,
+	}
+	// expiration time of cache is one day.
+	if err := cache.Read(); err == nil && time.Now().Before(cache.CachedAt.Add(24*time.Hour)) {
+		return cache.AvatarURL, nil
+	}
+
+	owner, err := github.GetOwner(context.Background(), ownerName)
+	if err != nil {
+		return "", err
+	}
+	cache = &lmdb.Owner{
+		Name:      ownerName,
+		AvatarURL: owner.GetAvatarURL(),
+		CachedAt:  time.Now(),
+	}
+	cache.Write()
+
+	return owner.GetAvatarURL(), nil
 }
