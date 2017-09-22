@@ -32,7 +32,7 @@ func (rc *ReleaseChecker) Run() error {
 	repo := &lmdb.Repo{
 		Owner:  rc.repo.Owner,
 		Name:   rc.repo.Name,
-		Target: TargetReleases,
+		Target: TargetRelease,
 	}
 	if err := repo.Read(); err != nil {
 		rc.notifiers.Error(err)
@@ -78,7 +78,7 @@ func (c *CommitChecker) Run() error {
 	repo := &lmdb.Repo{
 		Owner:  c.repo.Owner,
 		Name:   c.repo.Name,
-		Target: TargetCommits,
+		Target: TargetCommit,
 	}
 	if err := repo.Read(); err != nil {
 		c.notifiers.Error(err)
@@ -125,7 +125,7 @@ func (c *IssueChecker) Run() error {
 	repo := &lmdb.Repo{
 		Owner:  c.repo.Owner,
 		Name:   c.repo.Name,
-		Target: TargetIssues,
+		Target: TargetIssue,
 	}
 	if err := repo.Read(); err != nil {
 		c.notifiers.Error(err)
@@ -161,7 +161,7 @@ func (c *IssueChecker) Run() error {
 		Prev:      prev,
 		Link:      issue.GetHTMLURL(),
 		Body:      issue.GetBody(),
-		Target:    repo.Target[:len(repo.Target)-1],
+		Target:    repo.Target,
 	}
 	c.notifiers.Notify(ni)
 

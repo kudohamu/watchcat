@@ -30,18 +30,18 @@ you put the **toml** file according to the format below.
 [[repos]]
   owner = "golang"
   name = "go"
-  targets = ["releases", "commits", "issues"]
+  targets = ["release", "commit", "issue"]
 [[repos]]
   owner = "golang"
   name = "dep"
-  targets = ["releases"]
+  targets = ["release"]
 [[repos]]
   owner = "stretchr"
   name = "testify"
-  targets = ["releases"]
+  targets = ["release"]
 ```
 
-now, you can specify only `commits`, `releases` and `issues` for targets.
+now, you can specify only `commit`, `release` and `issue` for targets.
 
 you can use `gist`, `dropbox` and etc that be able to return content of file.
 
