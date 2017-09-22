@@ -3,7 +3,6 @@ package watchcat
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"os"
@@ -12,6 +11,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/BurntSushi/toml"
 	"github.com/kudohamu/petelgeuse"
 	"github.com/kudohamu/watchcat/internal/github"
 	"github.com/kudohamu/watchcat/internal/lmdb"
@@ -36,14 +36,14 @@ type Watcher struct {
 
 // Config represents cofiguration of watching targets.
 type Config struct {
-	Repos []*RepoConfig `json:"repos"`
+	Repos []*RepoConfig `toml:"repos"`
 }
 
 // RepoConfig represents target repository to watch.
 type RepoConfig struct {
-	Owner     string   `json:"owner"`
-	Name      string   `json:"name"`
-	Targets   []string `json:"targets"`
+	Owner     string   `toml:"owner"`
+	Name      string   `toml:"name"`
+	Targets   []string `toml:"targets"`
 	avatarURL string
 }
 
@@ -165,7 +165,7 @@ func readConfigFromURL(url string) (*Config, error) {
 	}
 
 	var config Config
-	if err := json.NewDecoder(res.Body).Decode(&config); err != nil {
+	if _, err := toml.DecodeReader(res.Body, &config); err != nil {
 		return nil, err
 	}
 	return &config, nil
