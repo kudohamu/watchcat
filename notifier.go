@@ -39,6 +39,7 @@ type notifiers []Notifier
 var notificationColors = map[string]string{
 	"release": "#3EBB3E",
 	"commit":  "#CBBE34",
+	"issue":   "#EE7163",
 	"error":   "danger",
 }
 
