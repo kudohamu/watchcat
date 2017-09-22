@@ -24,20 +24,21 @@ $ watchcat \
 ### --conf (required)
 
 path of configuration file listing repositories to watch.  
-you put the json file according to the format below.
+you put the **toml** file according to the format below.
 
-```json
-{
-  "repos": [{
-    "owner": "golang",
-    "name": "go",
-    "targets": ["releases", "commits"]
-  },{
-    "owner": "golang",
-    "name": "dep",
-    "targets": ["releases"]
-  }]
-}
+```toml
+[[repos]]
+  owner = "golang"
+  name = "go"
+  targets = ["releases", "commits", "issues"]
+[[repos]]
+  owner = "golang"
+  name = "dep"
+  targets = ["releases"]
+[[repos]]
+  owner = "stretchr"
+  name = "testify"
+  targets = ["releases"]
 ```
 
 now, you can specify only `commits`, `releases` and `issues` for targets.
