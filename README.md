@@ -40,7 +40,7 @@ you put the json file according to the format below.
 }
 ```
 
-now, you can specify only `commits` and `releases` for targets.
+now, you can specify only `commits`, `releases` and `issues` for targets.
 
 you can use `gist`, `dropbox` and etc that be able to return content of file.
 

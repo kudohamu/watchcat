@@ -77,3 +77,21 @@ func LatestCommit(ctx context.Context, owner string, name string) (*github.Repos
 	}
 	return commits[0], nil
 }
+
+// LatestIssue fetches latest issue of specified repository.
+func LatestIssue(ctx context.Context, owner string, name string) (*github.Issue, error) {
+	issues, res, err := client.Issues.ListByRepo(ctx, owner, name, &github.IssueListByRepoOptions{
+		ListOptions: github.ListOptions{
+			Page:    0,
+			PerPage: 1,
+		},
+	})
+	if res != nil && res.StatusCode == 404 || len(issues) == 0 {
+		return nil, ErrNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+
+	return issues[0], nil
+}
