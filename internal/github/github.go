@@ -95,3 +95,34 @@ func LatestIssue(ctx context.Context, owner string, name string) (*github.Issue,
 
 	return issues[0], nil
 }
+
+// LatestPRIssue fetches latest pr of specified repository.
+// PR is every pull request is an issue. see https://godoc.org/github.com/google/go-github/github/issues.go?s=780:2350#L16
+func LatestPRIssue(ctx context.Context, owner string, name string) (*github.Issue, error) {
+	page := 0
+
+	for {
+		issues, res, err := client.Issues.ListByRepo(ctx, owner, name, &github.IssueListByRepoOptions{
+			State: "all",
+			ListOptions: github.ListOptions{
+				Page:    page,
+				PerPage: 20,
+			},
+		})
+		if res != nil && res.StatusCode == 404 || len(issues) == 0 {
+			return nil, ErrNotFound
+		}
+		if err != nil {
+			return nil, err
+		}
+
+		for _, issue := range issues {
+			// if PullRequestLinks is not nil, this is a pull request.
+			if issue.PullRequestLinks != nil {
+				return issue, nil
+			}
+		}
+
+		page++
+	}
+}

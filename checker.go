@@ -27,6 +27,12 @@ type IssueChecker struct {
 	notifiers notifiers
 }
 
+// PRChecker repositories checker for latest pr.
+type PRChecker struct {
+	repo      *RepoConfig
+	notifiers notifiers
+}
+
 // Run checks latest release.
 func (rc *ReleaseChecker) Run() error {
 	repo := &lmdb.Repo{
@@ -164,6 +170,55 @@ func (c *IssueChecker) Run() error {
 		Link:      issue.GetHTMLURL(),
 		Title:     issue.GetTitle(),
 		Body:      issue.GetBody(),
+		Target:    repo.Target,
+	}
+	c.notifiers.Notify(ni)
+
+	return nil
+}
+
+// Run checks latest pr.
+func (c *PRChecker) Run() error {
+	repo := &lmdb.Repo{
+		Owner:  c.repo.Owner,
+		Name:   c.repo.Name,
+		Target: TargetPR,
+	}
+	if err := repo.Read(); err != nil {
+		c.notifiers.Error(err)
+		return err
+	}
+
+	pr, err := github.LatestPRIssue(context.Background(), repo.Owner, repo.Name)
+	if err != nil {
+		if err != github.ErrNotFound {
+			c.notifiers.Error(err)
+		}
+		return err
+	}
+
+	// has new pr?
+	current, err := strconv.Atoi(repo.Current)
+	if err == nil && current >= pr.GetID() {
+		return nil
+	}
+
+	prev := repo.Current
+	repo.Current = strconv.Itoa(pr.GetID())
+	if err := repo.Write(); err != nil {
+		c.notifiers.Error(err)
+		return err
+	}
+
+	ni := &NotificationInfo{
+		Owner:     repo.Owner,
+		AvatarURL: c.repo.avatarURL,
+		RepoName:  repo.Name,
+		Current:   repo.Current,
+		Prev:      prev,
+		Link:      pr.PullRequestLinks.GetHTMLURL(),
+		Title:     pr.GetTitle(),
+		Body:      pr.GetBody(),
 		Target:    repo.Target,
 	}
 	c.notifiers.Notify(ni)
