@@ -44,6 +44,7 @@ you put the **toml** file according to the format below.
 now, you can specify only `commit`, `release` and `issue` for targets.
 
 you can use `gist`, `dropbox` and etc that be able to return content of file.
+or put file to local and specify `--conf=file://your/configuration/path`.
 
 ### --token (recommended)
 
