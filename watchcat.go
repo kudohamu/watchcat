@@ -24,6 +24,7 @@ const (
 	TargetRelease = "release"
 	TargetCommit  = "commit"
 	TargetIssue   = "issue"
+	TargetPR      = "pr"
 )
 
 // Watcher represents watcher for github some activities.
@@ -137,6 +138,11 @@ func (w *Watcher) check(repos []*RepoConfig) {
 				})
 			case TargetIssue:
 				w.worker.Add(&IssueChecker{
+					repo:      repo,
+					notifiers: w.notifiers,
+				})
+			case TargetPR:
+				w.worker.Add(&PRChecker{
 					repo:      repo,
 					notifiers: w.notifiers,
 				})
