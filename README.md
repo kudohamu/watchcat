@@ -50,6 +50,7 @@ now, you can specify targets below.
 * **release**
 * **issue**
 * **pr**
+* **tag**
 
 ### --token (recommended)
 

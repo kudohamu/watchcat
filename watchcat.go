@@ -25,6 +25,7 @@ const (
 	TargetCommit  = "commit"
 	TargetIssue   = "issue"
 	TargetPR      = "pr"
+	TargetTag     = "tag"
 )
 
 // Watcher represents watcher for github some activities.
@@ -143,6 +144,11 @@ func (w *Watcher) check(repos []*RepoConfig) {
 				})
 			case TargetPR:
 				w.worker.Add(&PRChecker{
+					repo:      repo,
+					notifiers: w.notifiers,
+				})
+			case TargetTag:
+				w.worker.Add(&TagChecker{
 					repo:      repo,
 					notifiers: w.notifiers,
 				})

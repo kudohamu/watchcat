@@ -2,6 +2,7 @@ package watchcat
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 
 	"github.com/kudohamu/watchcat/internal/github"
@@ -29,6 +30,12 @@ type IssueChecker struct {
 
 // PRChecker repositories checker for latest pr.
 type PRChecker struct {
+	repo      *RepoConfig
+	notifiers notifiers
+}
+
+// TagChecker repositories checker for latest tag.
+type TagChecker struct {
 	repo      *RepoConfig
 	notifiers notifiers
 }
@@ -74,7 +81,7 @@ func (rc *ReleaseChecker) Run() error {
 		Link:      release.GetHTMLURL(),
 		Title:     release.GetTagName(),
 		Body:      release.GetBody(),
-		Target:    repo.Target[:len(repo.Target)-1],
+		Target:    repo.Target,
 	}
 	rc.notifiers.Notify(ni)
 	return nil
@@ -121,7 +128,7 @@ func (c *CommitChecker) Run() error {
 		Link:      commit.GetHTMLURL(),
 		Title:     commit.GetSHA(),
 		Body:      commit.Commit.GetMessage(),
-		Target:    repo.Target[:len(repo.Target)-1],
+		Target:    repo.Target,
 	}
 	c.notifiers.Notify(ni)
 
@@ -219,6 +226,54 @@ func (c *PRChecker) Run() error {
 		Link:      pr.PullRequestLinks.GetHTMLURL(),
 		Title:     pr.GetTitle(),
 		Body:      pr.GetBody(),
+		Target:    repo.Target,
+	}
+	c.notifiers.Notify(ni)
+
+	return nil
+}
+
+// Run checks latest tag.
+func (c *TagChecker) Run() error {
+	repo := &lmdb.Repo{
+		Owner:  c.repo.Owner,
+		Name:   c.repo.Name,
+		Target: TargetTag,
+	}
+	if err := repo.Read(); err != nil {
+		c.notifiers.Error(err)
+		return err
+	}
+
+	tag, err := github.LatestTag(context.Background(), repo.Owner, repo.Name)
+	if err != nil {
+		if err != github.ErrNotFound {
+			c.notifiers.Error(err)
+		}
+		return err
+	}
+
+	// has new tag?
+	if repo.Current != "" && version.CompareSimple(repo.Current, tag.GetName()) >= 0 {
+		return nil
+	}
+
+	prev := repo.Current
+	repo.Current = tag.GetName()
+	if err := repo.Write(); err != nil {
+		c.notifiers.Error(err)
+		return err
+	}
+
+	ni := &NotificationInfo{
+		Owner:     repo.Owner,
+		AvatarURL: c.repo.avatarURL,
+		RepoName:  repo.Name,
+		Current:   repo.Current,
+		Prev:      prev,
+		Link:      fmt.Sprintf("https://github.com/%s/%s/tags", repo.Owner, repo.Name),
+		Title:     tag.GetName(),
+		Body:      "",
 		Target:    repo.Target,
 	}
 	c.notifiers.Notify(ni)
