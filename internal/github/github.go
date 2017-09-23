@@ -80,20 +80,32 @@ func LatestCommit(ctx context.Context, owner string, name string) (*github.Repos
 
 // LatestIssue fetches latest issue of specified repository.
 func LatestIssue(ctx context.Context, owner string, name string) (*github.Issue, error) {
-	issues, res, err := client.Issues.ListByRepo(ctx, owner, name, &github.IssueListByRepoOptions{
-		ListOptions: github.ListOptions{
-			Page:    0,
-			PerPage: 1,
-		},
-	})
-	if res != nil && res.StatusCode == 404 || len(issues) == 0 {
-		return nil, ErrNotFound
-	}
-	if err != nil {
-		return nil, err
-	}
+	page := 0
 
-	return issues[0], nil
+	for {
+		issues, res, err := client.Issues.ListByRepo(ctx, owner, name, &github.IssueListByRepoOptions{
+			State: "all",
+			ListOptions: github.ListOptions{
+				Page:    page,
+				PerPage: 20,
+			},
+		})
+		if res != nil && res.StatusCode == 404 || len(issues) == 0 {
+			return nil, ErrNotFound
+		}
+		if err != nil {
+			return nil, err
+		}
+
+		for _, issue := range issues {
+			// if PullRequestLinks is not nil, that's pull request.
+			if issue.PullRequestLinks == nil {
+				return issue, nil
+			}
+		}
+
+		page++
+	}
 }
 
 // LatestPRIssue fetches latest pr of specified repository.
