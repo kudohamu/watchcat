@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"os/user"
+	"path/filepath"
 	"strings"
 	"syscall"
 	"time"
@@ -148,6 +150,8 @@ func readConfig(path string) (*Config, error) {
 		return readConfigFromURL(path)
 	} else if strings.HasPrefix(path, "http://") {
 		return readConfigFromURL(path)
+	} else if strings.HasPrefix(path, "file://") {
+		return readConfigFromFilePath(path)
 	}
 	return nil, fmt.Errorf("invalid configration type")
 }
@@ -166,6 +170,22 @@ func readConfigFromURL(url string) (*Config, error) {
 
 	var config Config
 	if _, err := toml.DecodeReader(res.Body, &config); err != nil {
+		return nil, err
+	}
+	return &config, nil
+}
+
+func readConfigFromFilePath(fpath string) (*Config, error) {
+	var config Config
+	fp := strings.Replace(fpath, "file://", "", 1)
+	if fp[:2] == "~/" {
+		usr, err := user.Current()
+		if err != nil {
+			return nil, err
+		}
+		fp = filepath.Join(usr.HomeDir, fp[2:])
+	}
+	if _, err := toml.DecodeFile(fp, &config); err != nil {
 		return nil, err
 	}
 	return &config, nil
