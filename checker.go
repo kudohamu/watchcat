@@ -66,6 +66,7 @@ func (rc *ReleaseChecker) Run() error {
 		Current:   repo.Current,
 		Prev:      prev,
 		Link:      release.GetHTMLURL(),
+		Title:     release.GetTagName(),
 		Body:      release.GetBody(),
 		Target:    repo.Target[:len(repo.Target)-1],
 	}
@@ -112,6 +113,7 @@ func (c *CommitChecker) Run() error {
 		Current:   repo.Current,
 		Prev:      prev,
 		Link:      commit.GetHTMLURL(),
+		Title:     commit.GetSHA(),
 		Body:      commit.Commit.GetMessage(),
 		Target:    repo.Target[:len(repo.Target)-1],
 	}
@@ -157,9 +159,10 @@ func (c *IssueChecker) Run() error {
 		Owner:     repo.Owner,
 		AvatarURL: c.repo.avatarURL,
 		RepoName:  repo.Name,
-		Current:   issue.GetTitle(),
+		Current:   repo.Current,
 		Prev:      prev,
 		Link:      issue.GetHTMLURL(),
+		Title:     issue.GetTitle(),
 		Body:      issue.GetBody(),
 		Target:    repo.Target,
 	}
