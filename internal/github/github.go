@@ -126,3 +126,18 @@ func LatestPRIssue(ctx context.Context, owner string, name string) (*github.Issu
 		page++
 	}
 }
+
+// LatestTag fetches latest tag of specified repository.
+func LatestTag(ctx context.Context, owner string, name string) (*github.RepositoryTag, error) {
+	tags, res, err := client.Repositories.ListTags(ctx, owner, name, &github.ListOptions{
+		Page:    0,
+		PerPage: 1,
+	})
+	if res != nil && res.StatusCode == 404 || len(tags) == 0 {
+		return nil, ErrNotFound
+	}
+	if err != nil {
+		return nil, err
+	}
+	return tags[0], nil
+}

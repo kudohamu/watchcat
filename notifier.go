@@ -42,6 +42,7 @@ var notificationColors = map[string]string{
 	"commit":  "#CBBE34",
 	"issue":   "#EE7163",
 	"pr":      "#447DDA",
+	"tag":     "#B85FCE",
 	"error":   "danger",
 }
 
