@@ -22,6 +22,7 @@ type NotificationInfo struct {
 	Target    string
 	Current   string
 	Prev      string
+	Title     string
 	Body      string
 	Link      string
 }
@@ -66,7 +67,7 @@ func (n *SlackNotifier) Notify(info *NotificationInfo) error {
 				"author_name": fmt.Sprintf("%s/%s", info.Owner, info.RepoName),
 				"author_link": fmt.Sprintf("https://github.com/%s/%s", info.Owner, info.RepoName),
 				"author_icon": info.AvatarURL,
-				"title":       fmt.Sprintf("new %s: %s", info.Target, info.Current),
+				"title":       fmt.Sprintf("new %s: %s", info.Target, info.Title),
 				"title_link":  info.Link,
 				"text":        info.Body,
 				"color":       notificationColors[info.Target],
