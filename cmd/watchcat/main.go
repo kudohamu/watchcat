@@ -9,7 +9,7 @@ import (
 func main() {
 	app := cli.NewApp()
 	app.Name = "watchcat"
-	app.Version = "v0.4.0"
+	app.Version = "v0.5.0"
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name:  "conf",
