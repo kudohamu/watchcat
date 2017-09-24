@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"os/user"
 	"path/filepath"
 	"strings"
 	"syscall"
@@ -17,6 +16,7 @@ import (
 	"github.com/kudohamu/petelgeuse"
 	"github.com/kudohamu/watchcat/internal/github"
 	"github.com/kudohamu/watchcat/internal/lmdb"
+	homedir "github.com/mitchellh/go-homedir"
 )
 
 // watching targets.
@@ -191,11 +191,11 @@ func readConfigFromFilePath(fpath string) (*Config, error) {
 	var config Config
 	fp := strings.Replace(fpath, "file://", "", 1)
 	if fp[:2] == "~/" {
-		usr, err := user.Current()
+		hd, err := homedir.Dir()
 		if err != nil {
 			return nil, err
 		}
-		fp = filepath.Join(usr.HomeDir, fp[2:])
+		fp = filepath.Join(hd, fp[2:])
 	}
 	if _, err := toml.DecodeFile(fp, &config); err != nil {
 		return nil, err
