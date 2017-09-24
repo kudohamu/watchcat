@@ -4,11 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"os/user"
 	"path"
 	"time"
 
 	"github.com/boltdb/bolt"
+	homedir "github.com/mitchellh/go-homedir"
 )
 
 var conn *bolt.DB
@@ -36,11 +36,11 @@ var bktRepo = []byte("repo")
 // Connect connects to lmdb.
 func Connect() error {
 	var err error
-	usr, err := user.Current()
+	hd, err := homedir.Dir()
 	if err != nil {
 		return err
 	}
-	dir := path.Join(usr.HomeDir, ".config", "watchcat")
+	dir := path.Join(hd, ".config", "watchcat")
 
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return err
