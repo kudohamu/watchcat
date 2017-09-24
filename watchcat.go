@@ -106,6 +106,10 @@ func (w *Watcher) Watch() error {
 	for {
 		select {
 		case <-w.ticker.C:
+			config, err := readConfig(w.configPath)
+			if err != nil {
+				continue
+			}
 			w.check(config.Repos)
 		case <-stopC:
 			return nil
