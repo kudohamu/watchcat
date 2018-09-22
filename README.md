@@ -71,3 +71,15 @@ if you specify `slack` to notifiers, you have to set this option.
 ### --interval (optional)
 
 watch interval. default is 30 minutes.
+
+## Docker
+
+you can use docker-image on DockerHub.
+
+```
+docker run --rm  \
+  -e CONFIG_PATH=https://gist.githubusercontent.com/kudohamu/XXXXXXXXX \
+  -e WEBHOOK_URL=https://hooks.slack.com/services/XXXXXXXXXXX \
+  -e GITHUB_TOKEN=xxxxx-xxxxxx-xxxxxx \
+  -it kudohamu/watchcat:latest
+```
