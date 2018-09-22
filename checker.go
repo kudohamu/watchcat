@@ -156,13 +156,13 @@ func (c *IssueChecker) Run() error {
 	}
 
 	// has new issue?
-	current, err := strconv.Atoi(repo.Current)
+	current, err := strconv.ParseInt(repo.Current, 10, 64)
 	if err == nil && current >= issue.GetID() {
 		return nil
 	}
 
 	prev := repo.Current
-	repo.Current = strconv.Itoa(issue.GetID())
+	repo.Current = strconv.FormatInt(issue.GetID(), 10)
 	if err := repo.Write(); err != nil {
 		c.notifiers.Error(err)
 		return err
@@ -205,13 +205,13 @@ func (c *PRChecker) Run() error {
 	}
 
 	// has new pr?
-	current, err := strconv.Atoi(repo.Current)
+	current, err := strconv.ParseInt(repo.Current, 10, 64)
 	if err == nil && current >= pr.GetID() {
 		return nil
 	}
 
 	prev := repo.Current
-	repo.Current = strconv.Itoa(pr.GetID())
+	repo.Current = strconv.FormatInt(pr.GetID(), 10)
 	if err := repo.Write(); err != nil {
 		c.notifiers.Error(err)
 		return err
